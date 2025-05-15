@@ -1,0 +1,14 @@
+citHeader("To cite excluder in publications, please use:")
+
+bibentry(bibtype =  "Article",
+         title        = "excluder: An R package that checks for exclusion criteria in online data",
+         author       = c(as.person("Jeffrey R. Stevens")),
+         year         = "2021",
+         journal      = "Journal of Open Source Software",
+         volume       = "6",
+         number       = "67",
+         pages        = "3893",
+         url          = "https://doi.org/10.21105/joss.03893",
+         DOI          = "10.21105/joss.03893",
+         textVersion  = "Stevens, J. R. (2021). excluder: An R package that checks for exclusion criteria in online data. Journal of Open Source Software, 6(67), 3893. https://doi.org/10.21105/joss.03893"
+)

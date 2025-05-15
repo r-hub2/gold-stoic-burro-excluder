@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>excluder</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">excluder</h1>
+
+
+
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(excluder)</span></code></pre></div>
+<p>The <code>{excluder}</code> package facilitates marking, checking
+for, and excluding rows of data frames<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> for common online
+participant exclusion criteria. This package applies to online data with
+a focus on data collected from <a href="https://www.qualtrics.com">Qualtrics</a> surveys, and default
+column names come from importing data with the <a href="https://docs.ropensci.org/qualtRics/"><code>{qualtRics}</code></a>
+package. This may be most useful for <a href="https://www.mturk.com/">Mechanical Turk</a> data to screen for
+duplicate entries from the same location/IP address or entries from
+locations outside of the United States. However, the package can be used
+for data from other sources that need to be screened for IP address,
+location, duplicated locations, participant progress, survey completion
+time, and/or screen resolution.</p>
+<div id="usage" class="section level2">
+<h2>Usage</h2>
+<p>The package has three core verbs:</p>
+<ol style="list-style-type: decimal">
+<li><code>mark_*()</code> functions add a new column to the original
+data frame that labels the rows meeting the exclusion criteria. This is
+useful to label the potential exclusions for future processing without
+changing the original data frame.</li>
+<li><code>check_*()</code> functions search for the exclusion criteria
+and output a message with the number of rows meeting the criteria and a
+data frame of the rows meeting the criteria. This is useful for viewing
+the potential exclusions.</li>
+<li><code>exclude_*()</code> functions remove rows meeting the exclusion
+criteria. This is safest to do after checking the rows to ensure the
+exclusions are correct.</li>
+</ol>
+<p>The <code>check_*()</code> and <code>exclude_*()</code> functions
+call the <code>mark_*()</code> function internally and then filter
+either the excluded or non-excluded rows. So avoid combining different
+verbs to sidestep unnecessary passes through the data.</p>
+<p>The package provides seven types of exclusions based on Qualtrics
+metadata:</p>
+<ol style="list-style-type: decimal">
+<li><code>duplicates</code> works with rows that have duplicate IP
+addresses and/or locations (latitude/longitude), using <a href="https://sfirke.github.io/janitor/reference/get_dupes.html"><code>janitor::get_dupes()</code></a>.</li>
+<li><code>duration</code> works with rows whose survey completion time
+is too short and/or too long.</li>
+<li><code>ip</code> works with rows whose IP addresses are not found in
+the specified country (note: this exclusion type requires an internet
+connection to download the country’s IP ranges), using package <a href="https://github.com/davidchall/ipaddress"><code>{ipaddress}</code></a>.</li>
+<li><code>location</code> works with rows whose latitude and longitude
+are not found in the United States.</li>
+<li><code>preview</code> works with rows that are survey previews.</li>
+<li><code>progress</code> works with rows in which the survey was not
+complete.</li>
+<li><code>resolution</code> works with rows whose screen resolution is
+not acceptable.</li>
+</ol>
+<p>The verbs combine with the exclusion types to generate functions. For
+instance, <code>mark_duplicates()</code> will mark duplicate rows and
+<code>exclude_preview()</code> will exclude preview rows.</p>
+<p>There are also helper functions:</p>
+<ol style="list-style-type: decimal">
+<li><a href="https://docs.ropensci.org//excluder/reference/unite_exclusions.html"><code>unite_exclusions()</code></a>
+unites all of the columns marked by <code>mark</code> functions into a
+single column (each use of a <code>mark</code> function creates a new
+column).</li>
+<li><a href="https://docs.ropensci.org//excluder/reference/deidentify.html"><code>deidentify()</code></a>
+removes standard Qualtrics columns with identifiable information.</li>
+<li><a href="https://docs.ropensci.org//excluder/reference/remove_label_rows.html"><code>remove_label_rows()</code></a>
+removes the first two rows of labels and convert date and numeric
+columns in the metadata.</li>
+</ol>
+</div>
+<div id="preparing-your-data" class="section level2">
+<h2>Preparing your data</h2>
+<p>If you use the <a href="https://docs.ropensci.org/qualtRics/reference/fetch_survey.html"><code>fetch_survey()</code></a>
+from the <code>{qualtRics}</code> package to import your Qualtrics data,
+it will automatically remove the first two label rows from the data set.
+However, if you directly download your data from Qualtrics, it will
+include two rows in your data set that include label information. This
+has two side effects: (1) there are non-data rows that need to be
+removed from your data set, and (2) all of your columns will be imported
+as character data types.</p>
+<p>The <a href="https://docs.ropensci.org//excluder/reference/remove_label_rows.html"><code>remove_label_rows()</code></a>
+function will remove these two label rows. Also, by default, it will
+coerce the Qualtrics metadata columns from character types to the
+correct formats (e.g., <em><code>StartDate</code></em> is coerced to a
+date, <em><code>Progress</code></em> is coerced to numeric). So if you
+download your data from Qualtrics, you will need to run this function on
+your data before proceeding.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>dplyr<span class="sc">::</span><span class="fu">glimpse</span>(qualtrics_raw)</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co">#&gt; Rows: 102</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co">#&gt; Columns: 16</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#&gt; $ StartDate               &lt;chr&gt; &quot;Start Date&quot;, &quot;{\&quot;ImportId\&quot;:\&quot;startDate\&quot;,\&quot;t…</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt; $ EndDate                 &lt;chr&gt; &quot;End Date&quot;, &quot;{\&quot;ImportId\&quot;:\&quot;endDate\&quot;,\&quot;timeZ…</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co">#&gt; $ Status                  &lt;chr&gt; &quot;Response Type&quot;, &quot;{\&quot;ImportId\&quot;:\&quot;status\&quot;}&quot;, …</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co">#&gt; $ IPAddress               &lt;chr&gt; &quot;IP Address&quot;, &quot;{\&quot;ImportId\&quot;:\&quot;ipAddress\&quot;}&quot;, …</span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#&gt; $ Progress                &lt;chr&gt; &quot;Progress&quot;, &quot;{\&quot;ImportId\&quot;:\&quot;progress\&quot;}&quot;, &quot;10…</span></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="co">#&gt; $ `Duration (in seconds)` &lt;chr&gt; &quot;Duration (in seconds)&quot;, &quot;{\&quot;ImportId\&quot;:\&quot;dura…</span></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="co">#&gt; $ Finished                &lt;chr&gt; &quot;Finished&quot;, &quot;{\&quot;ImportId\&quot;:\&quot;finished\&quot;}&quot;, &quot;TR…</span></span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="co">#&gt; $ RecordedDate            &lt;chr&gt; &quot;Recorded Date&quot;, &quot;{\&quot;ImportId\&quot;:\&quot;recordedDate…</span></span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="co">#&gt; $ ResponseId              &lt;chr&gt; &quot;Response ID&quot;, &quot;{\&quot;ImportId\&quot;:\&quot;_recordId\&quot;}&quot;,…</span></span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="co">#&gt; $ LocationLatitude        &lt;chr&gt; &quot;Location Latitude&quot;, &quot;{\&quot;ImportId\&quot;:\&quot;location…</span></span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a><span class="co">#&gt; $ LocationLongitude       &lt;chr&gt; &quot;Location Longitude&quot;, &quot;{\&quot;ImportId\&quot;:\&quot;locatio…</span></span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a><span class="co">#&gt; $ UserLanguage            &lt;chr&gt; &quot;User Language&quot;, &quot;{\&quot;ImportId\&quot;:\&quot;userLanguage…</span></span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="co">#&gt; $ Browser                 &lt;chr&gt; &quot;Browser Meta Info - Browser&quot;, &quot;{\&quot;ImportId\&quot;:…</span></span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="co">#&gt; $ Version                 &lt;chr&gt; &quot;Browser Meta Info - Version&quot;, &quot;{\&quot;ImportId\&quot;:…</span></span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a><span class="co">#&gt; $ `Operating System`      &lt;chr&gt; &quot;Browser Meta Info - Operating System&quot;, &quot;{\&quot;Im…</span></span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a><span class="co">#&gt; $ Resolution              &lt;chr&gt; &quot;Browser Meta Info - Resolution&quot;, &quot;{\&quot;ImportId…</span></span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a><span class="co">#</span></span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="co"># Remove label rows and coerce metadata columns</span></span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">remove_label_rows</span>(qualtrics_raw) <span class="sc">%&gt;%</span></span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">glimpse</span>()</span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a><span class="co">#&gt; Rows: 100</span></span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a><span class="co">#&gt; Columns: 16</span></span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="co">#&gt; $ StartDate               &lt;dttm&gt; 2020-12-11 12:06:52, 2020-12-11 12:06:43, 202…</span></span>
+<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a><span class="co">#&gt; $ EndDate                 &lt;dttm&gt; 2020-12-11 12:10:30, 2020-12-11 12:11:27, 202…</span></span>
+<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a><span class="co">#&gt; $ Status                  &lt;chr&gt; &quot;Survey Preview&quot;, &quot;Survey Preview&quot;, &quot;IP Addres…</span></span>
+<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a><span class="co">#&gt; $ IPAddress               &lt;chr&gt; NA, NA, &quot;73.23.43.0&quot;, &quot;16.140.105.0&quot;, &quot;107.57.…</span></span>
+<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a><span class="co">#&gt; $ Progress                &lt;dbl&gt; 100, 100, 100, 100, 100, 100, 100, 100, 100, 1…</span></span>
+<span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a><span class="co">#&gt; $ `Duration (in seconds)` &lt;dbl&gt; 465, 545, 651, 409, 140, 213, 177, 662, 296, 2…</span></span>
+<span id="cb2-32"><a href="#cb2-32" tabindex="-1"></a><span class="co">#&gt; $ Finished                &lt;lgl&gt; TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE…</span></span>
+<span id="cb2-33"><a href="#cb2-33" tabindex="-1"></a><span class="co">#&gt; $ RecordedDate            &lt;dttm&gt; 2020-12-11 12:10:30, 2020-12-11 12:11:27, 202…</span></span>
+<span id="cb2-34"><a href="#cb2-34" tabindex="-1"></a><span class="co">#&gt; $ ResponseId              &lt;chr&gt; &quot;R_xLWiuPaNuURSFXY&quot;, &quot;R_Q5lqYw6emJQZx2o&quot;, &quot;R_f…</span></span>
+<span id="cb2-35"><a href="#cb2-35" tabindex="-1"></a><span class="co">#&gt; $ LocationLatitude        &lt;dbl&gt; 29.73694, 39.74107, 34.03852, 44.96581, 27.980…</span></span>
+<span id="cb2-36"><a href="#cb2-36" tabindex="-1"></a><span class="co">#&gt; $ LocationLongitude       &lt;dbl&gt; -94.97599, -121.82490, -118.25739, -93.07187, …</span></span>
+<span id="cb2-37"><a href="#cb2-37" tabindex="-1"></a><span class="co">#&gt; $ UserLanguage            &lt;chr&gt; &quot;EN&quot;, &quot;EN&quot;, &quot;EN&quot;, &quot;EN&quot;, &quot;EN&quot;, &quot;EN&quot;, &quot;EN&quot;, &quot;EN&quot;…</span></span>
+<span id="cb2-38"><a href="#cb2-38" tabindex="-1"></a><span class="co">#&gt; $ Browser                 &lt;chr&gt; &quot;Chrome&quot;, &quot;Chrome&quot;, &quot;Chrome&quot;, &quot;Chrome&quot;, &quot;Chrom…</span></span>
+<span id="cb2-39"><a href="#cb2-39" tabindex="-1"></a><span class="co">#&gt; $ Version                 &lt;chr&gt; &quot;88.0.4324.41&quot;, &quot;88.0.4324.50&quot;, &quot;87.0.4280.88&quot;…</span></span>
+<span id="cb2-40"><a href="#cb2-40" tabindex="-1"></a><span class="co">#&gt; $ `Operating System`      &lt;chr&gt; &quot;Windows NT 10.0&quot;, &quot;Macintosh&quot;, &quot;Windows NT 10…</span></span>
+<span id="cb2-41"><a href="#cb2-41" tabindex="-1"></a><span class="co">#&gt; $ Resolution              &lt;chr&gt; &quot;1366x768&quot;, &quot;1680x1050&quot;, &quot;1366x768&quot;, &quot;1536x864…</span></span></code></pre></div>
+</div>
+<div id="marking-observations" class="section level2">
+<h2>Marking observations</h2>
+<p>The core verbs in this package mark them for future processing. The
+<code>mark_*()</code> suite of functions creates a new column for each
+mark function used that marks which observations violate the exclusion
+criterion. They print a message about the number of observations meeting
+each exclusion criteria. Mark functions return a data frame identical to
+the original with additional columns marking exclusions.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># Mark observations run as preview</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>df <span class="sc">%&gt;%</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  <span class="fu">mark_preview</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">glimpse</span>()</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt; ℹ 2 rows were collected as previews. It is highly recommended to exclude these rows before further processing.</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="co">#&gt; Rows: 100</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="co">#&gt; Columns: 17</span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="co">#&gt; $ StartDate               &lt;dttm&gt; 2020-12-11 12:06:52, 2020-12-11 12:06:43, 202…</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="co">#&gt; $ EndDate                 &lt;dttm&gt; 2020-12-11 12:10:30, 2020-12-11 12:11:27, 202…</span></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="co">#&gt; $ Status                  &lt;chr&gt; &quot;Survey Preview&quot;, &quot;Survey Preview&quot;, &quot;IP Addres…</span></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="co">#&gt; $ IPAddress               &lt;chr&gt; NA, NA, &quot;73.23.43.0&quot;, &quot;16.140.105.0&quot;, &quot;107.57.…</span></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="co">#&gt; $ Progress                &lt;dbl&gt; 100, 100, 100, 100, 100, 100, 100, 100, 100, 1…</span></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="co">#&gt; $ `Duration (in seconds)` &lt;dbl&gt; 465, 545, 651, 409, 140, 213, 177, 662, 296, 2…</span></span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a><span class="co">#&gt; $ Finished                &lt;lgl&gt; TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE…</span></span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a><span class="co">#&gt; $ RecordedDate            &lt;dttm&gt; 2020-12-11 12:10:30, 2020-12-11 12:11:27, 202…</span></span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="co">#&gt; $ ResponseId              &lt;chr&gt; &quot;R_xLWiuPaNuURSFXY&quot;, &quot;R_Q5lqYw6emJQZx2o&quot;, &quot;R_f…</span></span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="co">#&gt; $ LocationLatitude        &lt;dbl&gt; 29.73694, 39.74107, 34.03852, 44.96581, 27.980…</span></span>
+<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a><span class="co">#&gt; $ LocationLongitude       &lt;dbl&gt; -94.97599, -121.82490, -118.25739, -93.07187, …</span></span>
+<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a><span class="co">#&gt; $ UserLanguage            &lt;chr&gt; &quot;EN&quot;, &quot;EN&quot;, &quot;EN&quot;, &quot;EN&quot;, &quot;EN&quot;, &quot;EN&quot;, &quot;EN&quot;, &quot;EN&quot;…</span></span>
+<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a><span class="co">#&gt; $ Browser                 &lt;chr&gt; &quot;Chrome&quot;, &quot;Chrome&quot;, &quot;Chrome&quot;, &quot;Chrome&quot;, &quot;Chrom…</span></span>
+<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a><span class="co">#&gt; $ Version                 &lt;chr&gt; &quot;88.0.4324.41&quot;, &quot;88.0.4324.50&quot;, &quot;87.0.4280.88&quot;…</span></span>
+<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a><span class="co">#&gt; $ `Operating System`      &lt;chr&gt; &quot;Windows NT 10.0&quot;, &quot;Macintosh&quot;, &quot;Windows NT 10…</span></span>
+<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a><span class="co">#&gt; $ Resolution              &lt;chr&gt; &quot;1366x768&quot;, &quot;1680x1050&quot;, &quot;1366x768&quot;, &quot;1536x864…</span></span>
+<span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a><span class="co">#&gt; $ exclusion_preview       &lt;chr&gt; &quot;preview&quot;, &quot;preview&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, …</span></span></code></pre></div>
+<p>Notice the new <em><code>exclusion_preview</code></em> column at the
+end of the data frame. It has marked the first two observations as
+<code>preview</code>.</p>
+<p>Piping multiple mark functions will create multiple rows marking
+observations for exclusion.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># Mark preview and incomplete observations</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>df <span class="sc">%&gt;%</span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  <span class="fu">mark_preview</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>  <span class="fu">mark_progress</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">glimpse</span>()</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co">#&gt; ℹ 2 rows were collected as previews. It is highly recommended to exclude these rows before further processing.</span></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co">#&gt; ℹ 6 out of 100 rows did not complete the study.</span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="co">#&gt; Rows: 100</span></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="co">#&gt; Columns: 18</span></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="co">#&gt; $ StartDate               &lt;dttm&gt; 2020-12-11 12:06:52, 2020-12-11 12:06:43, 202…</span></span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="co">#&gt; $ EndDate                 &lt;dttm&gt; 2020-12-11 12:10:30, 2020-12-11 12:11:27, 202…</span></span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="co">#&gt; $ Status                  &lt;chr&gt; &quot;Survey Preview&quot;, &quot;Survey Preview&quot;, &quot;IP Addres…</span></span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="co">#&gt; $ IPAddress               &lt;chr&gt; NA, NA, &quot;73.23.43.0&quot;, &quot;16.140.105.0&quot;, &quot;107.57.…</span></span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="co">#&gt; $ Progress                &lt;dbl&gt; 100, 100, 100, 100, 100, 100, 100, 100, 100, 1…</span></span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="co">#&gt; $ `Duration (in seconds)` &lt;dbl&gt; 465, 545, 651, 409, 140, 213, 177, 662, 296, 2…</span></span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="co">#&gt; $ Finished                &lt;lgl&gt; TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE…</span></span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="co">#&gt; $ RecordedDate            &lt;dttm&gt; 2020-12-11 12:10:30, 2020-12-11 12:11:27, 202…</span></span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a><span class="co">#&gt; $ ResponseId              &lt;chr&gt; &quot;R_xLWiuPaNuURSFXY&quot;, &quot;R_Q5lqYw6emJQZx2o&quot;, &quot;R_f…</span></span>
+<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a><span class="co">#&gt; $ LocationLatitude        &lt;dbl&gt; 29.73694, 39.74107, 34.03852, 44.96581, 27.980…</span></span>
+<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a><span class="co">#&gt; $ LocationLongitude       &lt;dbl&gt; -94.97599, -121.82490, -118.25739, -93.07187, …</span></span>
+<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a><span class="co">#&gt; $ UserLanguage            &lt;chr&gt; &quot;EN&quot;, &quot;EN&quot;, &quot;EN&quot;, &quot;EN&quot;, &quot;EN&quot;, &quot;EN&quot;, &quot;EN&quot;, &quot;EN&quot;…</span></span>
+<span id="cb4-22"><a href="#cb4-22" tabindex="-1"></a><span class="co">#&gt; $ Browser                 &lt;chr&gt; &quot;Chrome&quot;, &quot;Chrome&quot;, &quot;Chrome&quot;, &quot;Chrome&quot;, &quot;Chrom…</span></span>
+<span id="cb4-23"><a href="#cb4-23" tabindex="-1"></a><span class="co">#&gt; $ Version                 &lt;chr&gt; &quot;88.0.4324.41&quot;, &quot;88.0.4324.50&quot;, &quot;87.0.4280.88&quot;…</span></span>
+<span id="cb4-24"><a href="#cb4-24" tabindex="-1"></a><span class="co">#&gt; $ `Operating System`      &lt;chr&gt; &quot;Windows NT 10.0&quot;, &quot;Macintosh&quot;, &quot;Windows NT 10…</span></span>
+<span id="cb4-25"><a href="#cb4-25" tabindex="-1"></a><span class="co">#&gt; $ Resolution              &lt;chr&gt; &quot;1366x768&quot;, &quot;1680x1050&quot;, &quot;1366x768&quot;, &quot;1536x864…</span></span>
+<span id="cb4-26"><a href="#cb4-26" tabindex="-1"></a><span class="co">#&gt; $ exclusion_preview       &lt;chr&gt; &quot;preview&quot;, &quot;preview&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, …</span></span>
+<span id="cb4-27"><a href="#cb4-27" tabindex="-1"></a><span class="co">#&gt; $ exclusion_progress      &lt;chr&gt; &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;…</span></span></code></pre></div>
+<p>To unite all of the marked columns into a single column, use the
+<code>unite_exclusions()</code> function. This will create a new
+<code>exclusions</code> columns that will unite all exclusions in each
+observation into a single column. Here we move the combined
+<em><code>exclusions</code></em> column to the beginning of the data
+frame to view it.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>df <span class="sc">%&gt;%</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>  <span class="fu">mark_preview</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>  <span class="fu">mark_duration</span>(<span class="at">min =</span> <span class="dv">500</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>  <span class="fu">unite_exclusions</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">relocate</span>(exclusions, <span class="at">.before =</span> StartDate)</span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt; ℹ 2 rows were collected as previews. It is highly recommended to exclude these rows before further processing.</span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt; ℹ 82 out of 100 rows took less time than 500.</span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&gt; # A tibble: 100 × 17</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt;    exclusions  StartDate           EndDate             Status IPAddress Progress</span></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt;    &lt;chr&gt;       &lt;dttm&gt;              &lt;dttm&gt;              &lt;chr&gt;  &lt;chr&gt;        &lt;dbl&gt;</span></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="co">#&gt;  1 &quot;preview,d… 2020-12-11 12:06:52 2020-12-11 12:10:30 Surve… &lt;NA&gt;           100</span></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="co">#&gt;  2 &quot;preview&quot;   2020-12-11 12:06:43 2020-12-11 12:11:27 Surve… &lt;NA&gt;           100</span></span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="co">#&gt;  3 &quot;&quot;          2020-12-11 12:17:22 2020-12-11 12:21:41 IP Ad… 73.23.43…      100</span></span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="co">#&gt;  4 &quot;duration_… 2020-12-11 12:17:41 2020-12-11 12:22:07 IP Ad… 16.140.1…      100</span></span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="co">#&gt;  5 &quot;duration_… 2020-12-11 12:19:45 2020-12-11 12:23:16 IP Ad… 107.57.2…      100</span></span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="co">#&gt;  6 &quot;duration_… 2020-12-11 12:37:51 2020-12-11 12:43:09 IP Ad… 15.232.1…      100</span></span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="co">#&gt;  7 &quot;duration_… 2020-12-11 12:41:23 2020-12-11 12:44:37 IP Ad… 24.195.9…      100</span></span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="co">#&gt;  8 &quot;&quot;          2020-12-11 12:37:04 2020-12-11 12:45:50 IP Ad… 98.75.20…      100</span></span>
+<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a><span class="co">#&gt;  9 &quot;duration_… 2020-12-11 12:55:35 2020-12-11 12:59:24 IP Ad… 51.113.1…      100</span></span>
+<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a><span class="co">#&gt; 10 &quot;duration_… 2020-12-11 13:22:34 2020-12-11 13:35:19 IP Ad… 17.163.1…      100</span></span>
+<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a><span class="co">#&gt; # ℹ 90 more rows</span></span>
+<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a><span class="co">#&gt; # ℹ 11 more variables: `Duration (in seconds)` &lt;dbl&gt;, Finished &lt;lgl&gt;,</span></span>
+<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a><span class="co">#&gt; #   RecordedDate &lt;dttm&gt;, ResponseId &lt;chr&gt;, LocationLatitude &lt;dbl&gt;,</span></span>
+<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a><span class="co">#&gt; #   LocationLongitude &lt;dbl&gt;, UserLanguage &lt;chr&gt;, Browser &lt;chr&gt;, Version &lt;chr&gt;,</span></span>
+<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a><span class="co">#&gt; #   `Operating System` &lt;chr&gt;, Resolution &lt;chr&gt;</span></span></code></pre></div>
+<p>Multiple exclusions are separated by <code>,</code> by default, but
+the separating character can be controlled by the <code>separator</code>
+argument. By default, the multiple exclusion columns are removed from
+the final data frame, but this can be turned off by setting the
+<code>remove</code> argument to <code>FALSE</code>.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>df <span class="sc">%&gt;%</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>  <span class="fu">mark_preview</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  <span class="fu">mark_duration</span>(<span class="at">min =</span> <span class="dv">500</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>  <span class="fu">unite_exclusions</span>(<span class="at">separator =</span> <span class="st">&quot;;&quot;</span>, <span class="at">remove =</span> <span class="cn">FALSE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">relocate</span>(exclusions, <span class="at">.before =</span> StartDate)</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; ℹ 2 rows were collected as previews. It is highly recommended to exclude these rows before further processing.</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; ℹ 82 out of 100 rows took less time than 500.</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt; # A tibble: 100 × 19</span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt;    exclusions  StartDate           EndDate             Status IPAddress Progress</span></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt;    &lt;chr&gt;       &lt;dttm&gt;              &lt;dttm&gt;              &lt;chr&gt;  &lt;chr&gt;        &lt;dbl&gt;</span></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt;  1 &quot;preview;d… 2020-12-11 12:06:52 2020-12-11 12:10:30 Surve… &lt;NA&gt;           100</span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt;  2 &quot;preview&quot;   2020-12-11 12:06:43 2020-12-11 12:11:27 Surve… &lt;NA&gt;           100</span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt;  3 &quot;&quot;          2020-12-11 12:17:22 2020-12-11 12:21:41 IP Ad… 73.23.43…      100</span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt;  4 &quot;duration_… 2020-12-11 12:17:41 2020-12-11 12:22:07 IP Ad… 16.140.1…      100</span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt;  5 &quot;duration_… 2020-12-11 12:19:45 2020-12-11 12:23:16 IP Ad… 107.57.2…      100</span></span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="co">#&gt;  6 &quot;duration_… 2020-12-11 12:37:51 2020-12-11 12:43:09 IP Ad… 15.232.1…      100</span></span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="co">#&gt;  7 &quot;duration_… 2020-12-11 12:41:23 2020-12-11 12:44:37 IP Ad… 24.195.9…      100</span></span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a><span class="co">#&gt;  8 &quot;&quot;          2020-12-11 12:37:04 2020-12-11 12:45:50 IP Ad… 98.75.20…      100</span></span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="co">#&gt;  9 &quot;duration_… 2020-12-11 12:55:35 2020-12-11 12:59:24 IP Ad… 51.113.1…      100</span></span>
+<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a><span class="co">#&gt; 10 &quot;duration_… 2020-12-11 13:22:34 2020-12-11 13:35:19 IP Ad… 17.163.1…      100</span></span>
+<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a><span class="co">#&gt; # ℹ 90 more rows</span></span>
+<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a><span class="co">#&gt; # ℹ 13 more variables: `Duration (in seconds)` &lt;dbl&gt;, Finished &lt;lgl&gt;,</span></span>
+<span id="cb6-23"><a href="#cb6-23" tabindex="-1"></a><span class="co">#&gt; #   RecordedDate &lt;dttm&gt;, ResponseId &lt;chr&gt;, LocationLatitude &lt;dbl&gt;,</span></span>
+<span id="cb6-24"><a href="#cb6-24" tabindex="-1"></a><span class="co">#&gt; #   LocationLongitude &lt;dbl&gt;, UserLanguage &lt;chr&gt;, Browser &lt;chr&gt;, Version &lt;chr&gt;,</span></span>
+<span id="cb6-25"><a href="#cb6-25" tabindex="-1"></a><span class="co">#&gt; #   `Operating System` &lt;chr&gt;, Resolution &lt;chr&gt;, exclusion_preview &lt;chr&gt;,</span></span>
+<span id="cb6-26"><a href="#cb6-26" tabindex="-1"></a><span class="co">#&gt; #   exclusion_duration &lt;chr&gt;</span></span></code></pre></div>
+</div>
+<div id="checking-observations" class="section level2">
+<h2>Checking observations</h2>
+<p>The <code>check_*()</code> suite of functions return a data frame
+that includes only the observations that meet the criterion. Since these
+functions first run the appropriate <code>mark_*()</code> function, they
+also print a message about the number of observations that meet the
+exclusion criterion.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># Check for rows with incomplete data</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>df <span class="sc">%&gt;%</span></span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  <span class="fu">check_progress</span>()</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="co">#&gt; ℹ 6 out of 100 rows did not complete the study.</span></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="co">#&gt; # A tibble: 6 × 16</span></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="co">#&gt;   StartDate           EndDate             Status     IPAddress    Progress</span></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="co">#&gt;   &lt;dttm&gt;              &lt;dttm&gt;              &lt;chr&gt;      &lt;chr&gt;           &lt;dbl&gt;</span></span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="co">#&gt; 1 2020-12-17 15:40:53 2020-12-17 15:43:25 IP Address 22.51.31.0         99</span></span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="co">#&gt; 2 2020-12-17 15:40:56 2020-12-17 15:46:23 IP Address 71.146.112.0        1</span></span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="co">#&gt; 3 2020-12-17 15:41:52 2020-12-17 15:46:37 IP Address 15.223.0.0         13</span></span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="co">#&gt; 4 2020-12-17 15:41:27 2020-12-17 15:46:45 IP Address 19.127.87.0        48</span></span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a><span class="co">#&gt; 5 2020-12-17 15:49:42 2020-12-17 15:51:50 IP Address 40.146.247.0        5</span></span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a><span class="co">#&gt; 6 2020-12-17 15:49:28 2020-12-17 15:55:06 IP Address 2.246.67.0         44</span></span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a><span class="co">#&gt; # ℹ 11 more variables: `Duration (in seconds)` &lt;dbl&gt;, Finished &lt;lgl&gt;,</span></span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a><span class="co">#&gt; #   RecordedDate &lt;dttm&gt;, ResponseId &lt;chr&gt;, LocationLatitude &lt;dbl&gt;,</span></span>
+<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a><span class="co">#&gt; #   LocationLongitude &lt;dbl&gt;, UserLanguage &lt;chr&gt;, Browser &lt;chr&gt;, Version &lt;chr&gt;,</span></span>
+<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a><span class="co">#&gt; #   `Operating System` &lt;chr&gt;, Resolution &lt;chr&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="co"># Check for rows with durations less than 100 seconds</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>df <span class="sc">%&gt;%</span></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>  <span class="fu">check_duration</span>(<span class="at">min_duration =</span> <span class="dv">100</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="co">#&gt; ℹ 4 out of 100 rows took less time than 100.</span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="co">#&gt; # A tibble: 4 × 16</span></span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="co">#&gt;   StartDate           EndDate             Status     IPAddress    Progress</span></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co">#&gt;   &lt;dttm&gt;              &lt;dttm&gt;              &lt;chr&gt;      &lt;chr&gt;           &lt;dbl&gt;</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="co">#&gt; 1 2020-12-11 16:59:08 2020-12-11 17:02:05 IP Address 84.56.189.0       100</span></span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="co">#&gt; 2 2020-12-17 15:41:52 2020-12-17 15:46:37 IP Address 15.223.0.0         13</span></span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="co">#&gt; 3 2020-12-17 15:41:27 2020-12-17 15:46:45 IP Address 19.127.87.0        48</span></span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="co">#&gt; 4 2020-12-17 15:46:46 2020-12-17 15:49:02 IP Address 21.134.217.0      100</span></span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a><span class="co">#&gt; # ℹ 11 more variables: `Duration (in seconds)` &lt;dbl&gt;, Finished &lt;lgl&gt;,</span></span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a><span class="co">#&gt; #   RecordedDate &lt;dttm&gt;, ResponseId &lt;chr&gt;, LocationLatitude &lt;dbl&gt;,</span></span>
+<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a><span class="co">#&gt; #   LocationLongitude &lt;dbl&gt;, UserLanguage &lt;chr&gt;, Browser &lt;chr&gt;, Version &lt;chr&gt;,</span></span>
+<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a><span class="co">#&gt; #   `Operating System` &lt;chr&gt;, Resolution &lt;chr&gt;</span></span></code></pre></div>
+<p>Because checks return only the rows meeting the criteria, they
+<strong>should not be connected via pipes</strong> unless you want to
+subset the second check criterion within the rows that meet the first
+criterion.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="co"># Check for rows with durations less than 100 seconds in rows that did not complete the survey</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>df <span class="sc">%&gt;%</span></span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>  <span class="fu">check_progress</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>  <span class="fu">check_duration</span>(<span class="at">min_duration =</span> <span class="dv">100</span>)</span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="co">#&gt; ℹ 6 out of 100 rows did not complete the study.</span></span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a><span class="co">#&gt; ℹ 2 out of 6 rows took less time than 100.</span></span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="co">#&gt; # A tibble: 2 × 16</span></span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="co">#&gt;   StartDate           EndDate             Status     IPAddress   Progress</span></span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a><span class="co">#&gt;   &lt;dttm&gt;              &lt;dttm&gt;              &lt;chr&gt;      &lt;chr&gt;          &lt;dbl&gt;</span></span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a><span class="co">#&gt; 1 2020-12-17 15:41:52 2020-12-17 15:46:37 IP Address 15.223.0.0        13</span></span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a><span class="co">#&gt; 2 2020-12-17 15:41:27 2020-12-17 15:46:45 IP Address 19.127.87.0       48</span></span>
+<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a><span class="co">#&gt; # ℹ 11 more variables: `Duration (in seconds)` &lt;dbl&gt;, Finished &lt;lgl&gt;,</span></span>
+<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a><span class="co">#&gt; #   RecordedDate &lt;dttm&gt;, ResponseId &lt;chr&gt;, LocationLatitude &lt;dbl&gt;,</span></span>
+<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a><span class="co">#&gt; #   LocationLongitude &lt;dbl&gt;, UserLanguage &lt;chr&gt;, Browser &lt;chr&gt;, Version &lt;chr&gt;,</span></span>
+<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a><span class="co">#&gt; #   `Operating System` &lt;chr&gt;, Resolution &lt;chr&gt;</span></span></code></pre></div>
+<p>To check all data for multiple criteria, use the
+<code>mark_*()</code> functions followed by a filter.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="co"># Check for multiple criteria</span></span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>df <span class="sc">%&gt;%</span></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>  <span class="fu">mark_preview</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>  <span class="fu">mark_duration</span>(<span class="at">min =</span> <span class="dv">500</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>  <span class="fu">unite_exclusions</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(exclusions <span class="sc">!=</span> <span class="st">&quot;&quot;</span>)</span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="co">#&gt; ℹ 2 rows were collected as previews. It is highly recommended to exclude these rows before further processing.</span></span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="co">#&gt; ℹ 82 out of 100 rows took less time than 500.</span></span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a><span class="co">#&gt; # A tibble: 83 × 17</span></span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a><span class="co">#&gt;    StartDate           EndDate             Status         IPAddress    Progress</span></span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a><span class="co">#&gt;    &lt;dttm&gt;              &lt;dttm&gt;              &lt;chr&gt;          &lt;chr&gt;           &lt;dbl&gt;</span></span>
+<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a><span class="co">#&gt;  1 2020-12-11 12:06:52 2020-12-11 12:10:30 Survey Preview &lt;NA&gt;              100</span></span>
+<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a><span class="co">#&gt;  2 2020-12-11 12:06:43 2020-12-11 12:11:27 Survey Preview &lt;NA&gt;              100</span></span>
+<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a><span class="co">#&gt;  3 2020-12-11 12:17:41 2020-12-11 12:22:07 IP Address     16.140.105.0      100</span></span>
+<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a><span class="co">#&gt;  4 2020-12-11 12:19:45 2020-12-11 12:23:16 IP Address     107.57.244.0      100</span></span>
+<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a><span class="co">#&gt;  5 2020-12-11 12:37:51 2020-12-11 12:43:09 IP Address     15.232.167.0      100</span></span>
+<span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a><span class="co">#&gt;  6 2020-12-11 12:41:23 2020-12-11 12:44:37 IP Address     24.195.91.0       100</span></span>
+<span id="cb10-18"><a href="#cb10-18" tabindex="-1"></a><span class="co">#&gt;  7 2020-12-11 12:55:35 2020-12-11 12:59:24 IP Address     51.113.171.0      100</span></span>
+<span id="cb10-19"><a href="#cb10-19" tabindex="-1"></a><span class="co">#&gt;  8 2020-12-11 13:22:34 2020-12-11 13:35:19 IP Address     17.163.199.0      100</span></span>
+<span id="cb10-20"><a href="#cb10-20" tabindex="-1"></a><span class="co">#&gt;  9 2020-12-11 16:59:08 2020-12-11 17:02:05 IP Address     84.56.189.0       100</span></span>
+<span id="cb10-21"><a href="#cb10-21" tabindex="-1"></a><span class="co">#&gt; 10 2020-12-11 17:02:00 2020-12-11 17:03:30 IP Address     70.203.63.0       100</span></span>
+<span id="cb10-22"><a href="#cb10-22" tabindex="-1"></a><span class="co">#&gt; # ℹ 73 more rows</span></span>
+<span id="cb10-23"><a href="#cb10-23" tabindex="-1"></a><span class="co">#&gt; # ℹ 12 more variables: `Duration (in seconds)` &lt;dbl&gt;, Finished &lt;lgl&gt;,</span></span>
+<span id="cb10-24"><a href="#cb10-24" tabindex="-1"></a><span class="co">#&gt; #   RecordedDate &lt;dttm&gt;, ResponseId &lt;chr&gt;, LocationLatitude &lt;dbl&gt;,</span></span>
+<span id="cb10-25"><a href="#cb10-25" tabindex="-1"></a><span class="co">#&gt; #   LocationLongitude &lt;dbl&gt;, UserLanguage &lt;chr&gt;, Browser &lt;chr&gt;, Version &lt;chr&gt;,</span></span>
+<span id="cb10-26"><a href="#cb10-26" tabindex="-1"></a><span class="co">#&gt; #   `Operating System` &lt;chr&gt;, Resolution &lt;chr&gt;, exclusions &lt;chr&gt;</span></span></code></pre></div>
+</div>
+<div id="excluding-observations" class="section level2">
+<h2>Excluding observations</h2>
+<p>The <code>exclude_*()</code> suite of function will return a data
+frame that has removed observations that match the exclusion criteria.
+Exclude functions print their own messages about the number of
+observations excluded.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="co"># Exclude survey responses used to preview the survey</span></span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>df <span class="sc">%&gt;%</span></span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>  <span class="fu">exclude_preview</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">glimpse</span>()</span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a><span class="co">#&gt; ℹ 2 out of 100 preview rows were excluded, leaving 98 rows.</span></span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a><span class="co">#&gt; Rows: 98</span></span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a><span class="co">#&gt; Columns: 16</span></span>
+<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a><span class="co">#&gt; $ StartDate               &lt;dttm&gt; 2020-12-11 12:17:22, 2020-12-11 12:17:41, 202…</span></span>
+<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a><span class="co">#&gt; $ EndDate                 &lt;dttm&gt; 2020-12-11 12:21:41, 2020-12-11 12:22:07, 202…</span></span>
+<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a><span class="co">#&gt; $ Status                  &lt;chr&gt; &quot;IP Address&quot;, &quot;IP Address&quot;, &quot;IP Address&quot;, &quot;IP …</span></span>
+<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a><span class="co">#&gt; $ IPAddress               &lt;chr&gt; &quot;73.23.43.0&quot;, &quot;16.140.105.0&quot;, &quot;107.57.244.0&quot;, …</span></span>
+<span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a><span class="co">#&gt; $ Progress                &lt;dbl&gt; 100, 100, 100, 100, 100, 100, 100, 100, 100, 1…</span></span>
+<span id="cb11-13"><a href="#cb11-13" tabindex="-1"></a><span class="co">#&gt; $ `Duration (in seconds)` &lt;dbl&gt; 651, 409, 140, 213, 177, 662, 296, 277, 54, 43…</span></span>
+<span id="cb11-14"><a href="#cb11-14" tabindex="-1"></a><span class="co">#&gt; $ Finished                &lt;lgl&gt; TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE…</span></span>
+<span id="cb11-15"><a href="#cb11-15" tabindex="-1"></a><span class="co">#&gt; $ RecordedDate            &lt;dttm&gt; 2020-12-11 12:21:42, 2020-12-11 12:22:07, 202…</span></span>
+<span id="cb11-16"><a href="#cb11-16" tabindex="-1"></a><span class="co">#&gt; $ ResponseId              &lt;chr&gt; &quot;R_fbYBeNscosfzN9L&quot;, &quot;R_yyG1HGXOMNPfWDn&quot;, &quot;R_9…</span></span>
+<span id="cb11-17"><a href="#cb11-17" tabindex="-1"></a><span class="co">#&gt; $ LocationLatitude        &lt;dbl&gt; 34.03852, 44.96581, 27.98064, 29.76499, 40.335…</span></span>
+<span id="cb11-18"><a href="#cb11-18" tabindex="-1"></a><span class="co">#&gt; $ LocationLongitude       &lt;dbl&gt; -118.25739, -93.07187, -82.78531, -95.36156, -…</span></span>
+<span id="cb11-19"><a href="#cb11-19" tabindex="-1"></a><span class="co">#&gt; $ UserLanguage            &lt;chr&gt; &quot;EN&quot;, &quot;EN&quot;, &quot;EN&quot;, &quot;EN&quot;, &quot;EN&quot;, &quot;EN&quot;, &quot;EN&quot;, &quot;EN&quot;…</span></span>
+<span id="cb11-20"><a href="#cb11-20" tabindex="-1"></a><span class="co">#&gt; $ Browser                 &lt;chr&gt; &quot;Chrome&quot;, &quot;Chrome&quot;, &quot;Chrome&quot;, &quot;Chrome&quot;, &quot;Chrom…</span></span>
+<span id="cb11-21"><a href="#cb11-21" tabindex="-1"></a><span class="co">#&gt; $ Version                 &lt;chr&gt; &quot;87.0.4280.88&quot;, &quot;87.0.4280.88&quot;, &quot;87.0.4280.88&quot;…</span></span>
+<span id="cb11-22"><a href="#cb11-22" tabindex="-1"></a><span class="co">#&gt; $ `Operating System`      &lt;chr&gt; &quot;Windows NT 10.0&quot;, &quot;Windows NT 10.0&quot;, &quot;Windows…</span></span>
+<span id="cb11-23"><a href="#cb11-23" tabindex="-1"></a><span class="co">#&gt; $ Resolution              &lt;chr&gt; &quot;1366x768&quot;, &quot;1536x864&quot;, &quot;1536x864&quot;, &quot;1366x768&quot;…</span></span></code></pre></div>
+<p>Piping will apply subsequent excludes to the data frames with the
+previous excludes already applied. Therefore, it often makes sense to
+remove the preview surveys and incomplete surveys before checking other
+exclusion types to speed processing.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="co"># Exclude preview then incomplete progress rows then duplicate locations and IP addresses</span></span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a>df <span class="sc">%&gt;%</span></span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a>  <span class="fu">exclude_preview</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a>  <span class="fu">exclude_progress</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a>  <span class="fu">exclude_duplicates</span>(<span class="at">print =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a><span class="co">#&gt; ℹ 2 out of 100 preview rows were excluded, leaving 98 rows.</span></span>
+<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a><span class="co">#&gt; ℹ 6 out of 98 rows with incomplete progress were excluded, leaving 92 rows.</span></span>
+<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a><span class="co">#&gt; ℹ 9 out of 92 duplicate rows were excluded, leaving 83 rows.</span></span></code></pre></div>
+</div>
+<div id="messages-and-console-output" class="section level2">
+<h2>Messages and console output</h2>
+<p>Messages about the number of rows meeting the exclusion criteria are
+printed to the console by default. These messages are generated by the
+<code>mark_*()</code> functions and carry over to <code>check_*()</code>
+functions. They can be turn off by setting <code>quiet</code> to
+<code>TRUE</code>.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="co"># Turn off marking/checking messages with quiet = TRUE</span></span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>df <span class="sc">%&gt;%</span></span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>  <span class="fu">check_progress</span>(<span class="at">quiet =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a><span class="co">#&gt; # A tibble: 6 × 16</span></span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a><span class="co">#&gt;   StartDate           EndDate             Status     IPAddress    Progress</span></span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a><span class="co">#&gt;   &lt;dttm&gt;              &lt;dttm&gt;              &lt;chr&gt;      &lt;chr&gt;           &lt;dbl&gt;</span></span>
+<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a><span class="co">#&gt; 1 2020-12-17 15:40:53 2020-12-17 15:43:25 IP Address 22.51.31.0         99</span></span>
+<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a><span class="co">#&gt; 2 2020-12-17 15:40:56 2020-12-17 15:46:23 IP Address 71.146.112.0        1</span></span>
+<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a><span class="co">#&gt; 3 2020-12-17 15:41:52 2020-12-17 15:46:37 IP Address 15.223.0.0         13</span></span>
+<span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a><span class="co">#&gt; 4 2020-12-17 15:41:27 2020-12-17 15:46:45 IP Address 19.127.87.0        48</span></span>
+<span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a><span class="co">#&gt; 5 2020-12-17 15:49:42 2020-12-17 15:51:50 IP Address 40.146.247.0        5</span></span>
+<span id="cb13-12"><a href="#cb13-12" tabindex="-1"></a><span class="co">#&gt; 6 2020-12-17 15:49:28 2020-12-17 15:55:06 IP Address 2.246.67.0         44</span></span>
+<span id="cb13-13"><a href="#cb13-13" tabindex="-1"></a><span class="co">#&gt; # ℹ 11 more variables: `Duration (in seconds)` &lt;dbl&gt;, Finished &lt;lgl&gt;,</span></span>
+<span id="cb13-14"><a href="#cb13-14" tabindex="-1"></a><span class="co">#&gt; #   RecordedDate &lt;dttm&gt;, ResponseId &lt;chr&gt;, LocationLatitude &lt;dbl&gt;,</span></span>
+<span id="cb13-15"><a href="#cb13-15" tabindex="-1"></a><span class="co">#&gt; #   LocationLongitude &lt;dbl&gt;, UserLanguage &lt;chr&gt;, Browser &lt;chr&gt;, Version &lt;chr&gt;,</span></span>
+<span id="cb13-16"><a href="#cb13-16" tabindex="-1"></a><span class="co">#&gt; #   `Operating System` &lt;chr&gt;, Resolution &lt;chr&gt;</span></span></code></pre></div>
+<p>Note that <code>exclude_*()</code> functions have the
+<code>mark_*()</code> messages turned off by default and produce their
+own messages about exclusions. To silence these messages, set
+<code>silent</code> to <code>TRUE</code>.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="co"># Turn off exclusion messages with silent = TRUE</span></span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a>df <span class="sc">%&gt;%</span></span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a>  <span class="fu">exclude_preview</span>(<span class="at">silent =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a>  <span class="fu">exclude_progress</span>(<span class="at">silent =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a>  <span class="fu">exclude_duplicates</span>(<span class="at">silent =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a><span class="co">#&gt; # A tibble: 83 × 16</span></span>
+<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a><span class="co">#&gt;    StartDate           EndDate             Status     IPAddress    Progress</span></span>
+<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a><span class="co">#&gt;    &lt;dttm&gt;              &lt;dttm&gt;              &lt;chr&gt;      &lt;chr&gt;           &lt;dbl&gt;</span></span>
+<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a><span class="co">#&gt;  1 2020-12-11 12:17:22 2020-12-11 12:21:41 IP Address 73.23.43.0        100</span></span>
+<span id="cb14-10"><a href="#cb14-10" tabindex="-1"></a><span class="co">#&gt;  2 2020-12-11 12:17:41 2020-12-11 12:22:07 IP Address 16.140.105.0      100</span></span>
+<span id="cb14-11"><a href="#cb14-11" tabindex="-1"></a><span class="co">#&gt;  3 2020-12-11 12:19:45 2020-12-11 12:23:16 IP Address 107.57.244.0      100</span></span>
+<span id="cb14-12"><a href="#cb14-12" tabindex="-1"></a><span class="co">#&gt;  4 2020-12-11 12:37:51 2020-12-11 12:43:09 IP Address 15.232.167.0      100</span></span>
+<span id="cb14-13"><a href="#cb14-13" tabindex="-1"></a><span class="co">#&gt;  5 2020-12-11 12:37:04 2020-12-11 12:45:50 IP Address 98.75.201.0       100</span></span>
+<span id="cb14-14"><a href="#cb14-14" tabindex="-1"></a><span class="co">#&gt;  6 2020-12-11 12:55:35 2020-12-11 12:59:24 IP Address 51.113.171.0      100</span></span>
+<span id="cb14-15"><a href="#cb14-15" tabindex="-1"></a><span class="co">#&gt;  7 2020-12-11 13:22:34 2020-12-11 13:35:19 IP Address 17.163.199.0      100</span></span>
+<span id="cb14-16"><a href="#cb14-16" tabindex="-1"></a><span class="co">#&gt;  8 2020-12-11 16:59:08 2020-12-11 17:02:05 IP Address 84.56.189.0       100</span></span>
+<span id="cb14-17"><a href="#cb14-17" tabindex="-1"></a><span class="co">#&gt;  9 2020-12-11 17:02:00 2020-12-11 17:03:30 IP Address 70.203.63.0       100</span></span>
+<span id="cb14-18"><a href="#cb14-18" tabindex="-1"></a><span class="co">#&gt; 10 2020-12-11 17:01:32 2020-12-11 17:09:41 IP Address 33.185.89.0       100</span></span>
+<span id="cb14-19"><a href="#cb14-19" tabindex="-1"></a><span class="co">#&gt; # ℹ 73 more rows</span></span>
+<span id="cb14-20"><a href="#cb14-20" tabindex="-1"></a><span class="co">#&gt; # ℹ 11 more variables: `Duration (in seconds)` &lt;dbl&gt;, Finished &lt;lgl&gt;,</span></span>
+<span id="cb14-21"><a href="#cb14-21" tabindex="-1"></a><span class="co">#&gt; #   RecordedDate &lt;dttm&gt;, ResponseId &lt;chr&gt;, LocationLatitude &lt;dbl&gt;,</span></span>
+<span id="cb14-22"><a href="#cb14-22" tabindex="-1"></a><span class="co">#&gt; #   LocationLongitude &lt;dbl&gt;, UserLanguage &lt;chr&gt;, Browser &lt;chr&gt;, Version &lt;chr&gt;,</span></span>
+<span id="cb14-23"><a href="#cb14-23" tabindex="-1"></a><span class="co">#&gt; #   `Operating System` &lt;chr&gt;, Resolution &lt;chr&gt;</span></span></code></pre></div>
+<p>Though <code>exclude_*()</code> functions do not print the data frame
+to the console, <code>mark_*()</code> and <code>check_*()</code> do. To
+avoid printing to the console, set <code>print</code> =
+<code>FALSE</code>.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="co"># Turn off marking/checking printing data frame with print = FALSE</span></span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a>df <span class="sc">%&gt;%</span></span>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a>  <span class="fu">check_progress</span>(<span class="at">print =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="co">#&gt; ℹ 6 out of 100 rows did not complete the study.</span></span></code></pre></div>
+</div>
+<div id="deidentifying-data" class="section level2">
+<h2>Deidentifying data</h2>
+<p>By default, Qualtrics records participant IP address and location.<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a> You can
+also record properties of the participants’ computers such as operating
+system, web browser type and version, and screen resolution.<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a> While
+these pieces of information can be useful for excluding observations,
+they carry potentially identifiable information. Therefore, you may want
+to remove them from data frame before saving or processing it. The
+<code>deidentify()</code> function removes potentially identifiable data
+columns collected by Qualtrics. By default, the function uses a strict
+rule to remove IP address, location, and computer information (browser
+type and version, operating system, and screen resolution).</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a><span class="co"># Exclude preview then incomplete progress rows</span></span>
+<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a>df <span class="sc">%&gt;%</span></span>
+<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a>  <span class="fu">exclude_preview</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a>  <span class="fu">exclude_progress</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a>  <span class="fu">exclude_duplicates</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb16-6"><a href="#cb16-6" tabindex="-1"></a>  <span class="fu">deidentify</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb16-7"><a href="#cb16-7" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">glimpse</span>()</span>
+<span id="cb16-8"><a href="#cb16-8" tabindex="-1"></a><span class="co">#&gt; ℹ 2 out of 100 preview rows were excluded, leaving 98 rows.</span></span>
+<span id="cb16-9"><a href="#cb16-9" tabindex="-1"></a><span class="co">#&gt; ℹ 6 out of 98 rows with incomplete progress were excluded, leaving 92 rows.</span></span>
+<span id="cb16-10"><a href="#cb16-10" tabindex="-1"></a><span class="co">#&gt; ℹ 9 out of 92 duplicate rows were excluded, leaving 83 rows.</span></span>
+<span id="cb16-11"><a href="#cb16-11" tabindex="-1"></a><span class="co">#&gt; Rows: 83</span></span>
+<span id="cb16-12"><a href="#cb16-12" tabindex="-1"></a><span class="co">#&gt; Columns: 8</span></span>
+<span id="cb16-13"><a href="#cb16-13" tabindex="-1"></a><span class="co">#&gt; $ StartDate               &lt;dttm&gt; 2020-12-11 12:17:22, 2020-12-11 12:17:41, 202…</span></span>
+<span id="cb16-14"><a href="#cb16-14" tabindex="-1"></a><span class="co">#&gt; $ EndDate                 &lt;dttm&gt; 2020-12-11 12:21:41, 2020-12-11 12:22:07, 202…</span></span>
+<span id="cb16-15"><a href="#cb16-15" tabindex="-1"></a><span class="co">#&gt; $ Status                  &lt;chr&gt; &quot;IP Address&quot;, &quot;IP Address&quot;, &quot;IP Address&quot;, &quot;IP …</span></span>
+<span id="cb16-16"><a href="#cb16-16" tabindex="-1"></a><span class="co">#&gt; $ Progress                &lt;dbl&gt; 100, 100, 100, 100, 100, 100, 100, 100, 100, 1…</span></span>
+<span id="cb16-17"><a href="#cb16-17" tabindex="-1"></a><span class="co">#&gt; $ `Duration (in seconds)` &lt;dbl&gt; 651, 409, 140, 213, 662, 296, 277, 54, 432, 10…</span></span>
+<span id="cb16-18"><a href="#cb16-18" tabindex="-1"></a><span class="co">#&gt; $ Finished                &lt;lgl&gt; TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE…</span></span>
+<span id="cb16-19"><a href="#cb16-19" tabindex="-1"></a><span class="co">#&gt; $ RecordedDate            &lt;dttm&gt; 2020-12-11 12:21:42, 2020-12-11 12:22:07, 202…</span></span>
+<span id="cb16-20"><a href="#cb16-20" tabindex="-1"></a><span class="co">#&gt; $ ResponseId              &lt;chr&gt; &quot;R_fbYBeNscosfzN9L&quot;, &quot;R_yyG1HGXOMNPfWDn&quot;, &quot;R_9…</span></span></code></pre></div>
+<p>If the computer information is not considered sensitive, it can be
+kept by setting the <code>strict</code> argument to <code>FALSE</code>,
+thereby only removing IP address and location.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a><span class="co"># Exclude preview then incomplete progress rows</span></span>
+<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a>df <span class="sc">%&gt;%</span></span>
+<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a>  <span class="fu">exclude_preview</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a>  <span class="fu">exclude_progress</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a>  <span class="fu">exclude_duplicates</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a>  <span class="fu">deidentify</span>(<span class="at">strict =</span> <span class="cn">FALSE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb17-7"><a href="#cb17-7" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">glimpse</span>()</span>
+<span id="cb17-8"><a href="#cb17-8" tabindex="-1"></a><span class="co">#&gt; ℹ 2 out of 100 preview rows were excluded, leaving 98 rows.</span></span>
+<span id="cb17-9"><a href="#cb17-9" tabindex="-1"></a><span class="co">#&gt; ℹ 6 out of 98 rows with incomplete progress were excluded, leaving 92 rows.</span></span>
+<span id="cb17-10"><a href="#cb17-10" tabindex="-1"></a><span class="co">#&gt; ℹ 9 out of 92 duplicate rows were excluded, leaving 83 rows.</span></span>
+<span id="cb17-11"><a href="#cb17-11" tabindex="-1"></a><span class="co">#&gt; Rows: 83</span></span>
+<span id="cb17-12"><a href="#cb17-12" tabindex="-1"></a><span class="co">#&gt; Columns: 12</span></span>
+<span id="cb17-13"><a href="#cb17-13" tabindex="-1"></a><span class="co">#&gt; $ StartDate               &lt;dttm&gt; 2020-12-11 12:17:22, 2020-12-11 12:17:41, 202…</span></span>
+<span id="cb17-14"><a href="#cb17-14" tabindex="-1"></a><span class="co">#&gt; $ EndDate                 &lt;dttm&gt; 2020-12-11 12:21:41, 2020-12-11 12:22:07, 202…</span></span>
+<span id="cb17-15"><a href="#cb17-15" tabindex="-1"></a><span class="co">#&gt; $ Status                  &lt;chr&gt; &quot;IP Address&quot;, &quot;IP Address&quot;, &quot;IP Address&quot;, &quot;IP …</span></span>
+<span id="cb17-16"><a href="#cb17-16" tabindex="-1"></a><span class="co">#&gt; $ Progress                &lt;dbl&gt; 100, 100, 100, 100, 100, 100, 100, 100, 100, 1…</span></span>
+<span id="cb17-17"><a href="#cb17-17" tabindex="-1"></a><span class="co">#&gt; $ `Duration (in seconds)` &lt;dbl&gt; 651, 409, 140, 213, 662, 296, 277, 54, 432, 10…</span></span>
+<span id="cb17-18"><a href="#cb17-18" tabindex="-1"></a><span class="co">#&gt; $ Finished                &lt;lgl&gt; TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE…</span></span>
+<span id="cb17-19"><a href="#cb17-19" tabindex="-1"></a><span class="co">#&gt; $ RecordedDate            &lt;dttm&gt; 2020-12-11 12:21:42, 2020-12-11 12:22:07, 202…</span></span>
+<span id="cb17-20"><a href="#cb17-20" tabindex="-1"></a><span class="co">#&gt; $ ResponseId              &lt;chr&gt; &quot;R_fbYBeNscosfzN9L&quot;, &quot;R_yyG1HGXOMNPfWDn&quot;, &quot;R_9…</span></span>
+<span id="cb17-21"><a href="#cb17-21" tabindex="-1"></a><span class="co">#&gt; $ Browser                 &lt;chr&gt; &quot;Chrome&quot;, &quot;Chrome&quot;, &quot;Chrome&quot;, &quot;Chrome&quot;, &quot;Edge&quot;…</span></span>
+<span id="cb17-22"><a href="#cb17-22" tabindex="-1"></a><span class="co">#&gt; $ Version                 &lt;chr&gt; &quot;87.0.4280.88&quot;, &quot;87.0.4280.88&quot;, &quot;87.0.4280.88&quot;…</span></span>
+<span id="cb17-23"><a href="#cb17-23" tabindex="-1"></a><span class="co">#&gt; $ `Operating System`      &lt;chr&gt; &quot;Windows NT 10.0&quot;, &quot;Windows NT 10.0&quot;, &quot;Windows…</span></span>
+<span id="cb17-24"><a href="#cb17-24" tabindex="-1"></a><span class="co">#&gt; $ Resolution              &lt;chr&gt; &quot;1366x768&quot;, &quot;1536x864&quot;, &quot;1536x864&quot;, &quot;1366x768&quot;…</span></span></code></pre></div>
+</div>
+<div class="footnotes footnotes-end-of-document">
+<hr />
+<ol>
+<li id="fn1"><p>Though the functions take data frames input, they
+produce <a href="https://tibble.tidyverse.org/">tibbles</a>.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn2"><p>To avoid recording this potentially identifiable
+information, go to <em>Survey options</em> &gt; <em>Security</em> &gt;
+<em>Anonymize responses</em>.<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
+<li id="fn3"><p>You can turn these on by adding a new question (usually
+to the beginning of your survey) and choosing <em>Meta info</em> as the
+question type.<a href="#fnref3" class="footnote-back">↩︎</a></p></li>
+</ol>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
